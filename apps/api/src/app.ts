@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import { env } from '@/config/env'
+import { errorHandler } from '@/middlewares/errorHandler'
 
 const app = express()
 
@@ -29,5 +30,7 @@ app.use(limiter)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use(errorHandler)
 
 export { app }
