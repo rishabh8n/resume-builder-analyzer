@@ -93,6 +93,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const refreshToken = signRefreshToken(user.id, refreshTokenId)
   const refreshTokenHash = hashToken(refreshToken)
   user.refreshTokens.push(refreshTokenHash)
+  if (user.refreshTokens.length > env.MAX_REFRESH_TOKENS) {
+    user.refreshTokens = user.refreshTokens.slice(-env.MAX_REFRESH_TOKENS)
+  }
   await user.save()
 
   const accessToken = signAccessToken(user.id)
@@ -110,7 +113,11 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   if (!user) throw new ApiError(401, 'Invalid refresh token')
 
   const tokenHash = hashToken(token)
-  if (!user.refreshTokens.includes(tokenHash)) throw new ApiError(401, 'Invalid refresh token')
+  if (!user.refreshTokens.includes(tokenHash)) {
+    user.refreshTokens = []
+    await user.save()
+    throw new ApiError(401, 'Invalid refresh token')
+  }
 
   // rotate refresh token
   user.refreshTokens = user.refreshTokens.filter((t) => t !== tokenHash)
@@ -118,6 +125,9 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const newRefreshToken = signRefreshToken(user.id, newTokenId)
   const newRefreshHash = hashToken(newRefreshToken)
   user.refreshTokens.push(newRefreshHash)
+  if (user.refreshTokens.length > env.MAX_REFRESH_TOKENS) {
+    user.refreshTokens = user.refreshTokens.slice(-env.MAX_REFRESH_TOKENS)
+  }
   await user.save()
 
   const accessToken = signAccessToken(user.id)
@@ -238,6 +248,9 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   const refreshToken = signRefreshToken(user.id, refreshTokenId)
   const refreshTokenHash = hashToken(refreshToken)
   user.refreshTokens.push(refreshTokenHash)
+  if (user.refreshTokens.length > env.MAX_REFRESH_TOKENS) {
+    user.refreshTokens = user.refreshTokens.slice(-env.MAX_REFRESH_TOKENS)
+  }
   await user.save()
 
   const accessToken = signAccessToken(user.id)

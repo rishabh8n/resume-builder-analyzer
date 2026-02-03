@@ -16,4 +16,5 @@ export const env = {
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? '',
   RESEND_FROM: process.env.RESEND_FROM ?? '',
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? '',
+  MAX_REFRESH_TOKENS: Number(process.env.MAX_REFRESH_TOKENS ?? 5),
 }
