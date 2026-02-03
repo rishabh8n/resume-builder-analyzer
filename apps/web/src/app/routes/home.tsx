@@ -1,19 +1,38 @@
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '@/features/auth/store/useAuthStore'
 
 export function HomeRoute() {
+  const status = useAuthStore((s) => s.status)
+  const logout = useAuthStore((s) => s.logout)
+  const isAuthed = status === 'authenticated'
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <header className="border-b">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="text-sm uppercase tracking-widest text-slate-500">Resume Builder</div>
           <nav className="flex items-center gap-4 text-sm">
-            <Link to="/login" className="text-slate-700 hover:text-slate-900">Login</Link>
-            <Link
-              to="/register"
-              className="rounded-md bg-slate-900 px-4 py-2 text-white"
-            >
-              Get Started
-            </Link>
+            {isAuthed ? (
+              <>
+                <Link to="/account" className="text-slate-700 hover:text-slate-900">Dashboard</Link>
+                <button
+                  onClick={() => logout()}
+                  className="rounded-md border px-4 py-2 text-slate-700"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-slate-700 hover:text-slate-900">Login</Link>
+                <Link
+                  to="/register"
+                  className="rounded-md bg-slate-900 px-4 py-2 text-white"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -30,18 +49,37 @@ export function HomeRoute() {
               project matching—designed for students and job seekers.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to="/register"
-                className="rounded-md bg-slate-900 px-5 py-2.5 text-sm text-white"
-              >
-                Start free
-              </Link>
-              <Link
-                to="/login"
-                className="rounded-md border px-5 py-2.5 text-sm text-slate-700"
-              >
-                I already have an account
-              </Link>
+              {isAuthed ? (
+                <>
+                  <Link
+                    to="/account"
+                    className="rounded-md bg-slate-900 px-5 py-2.5 text-sm text-white"
+                  >
+                    Go to dashboard
+                  </Link>
+                  <button
+                    onClick={() => logout()}
+                    className="rounded-md border px-5 py-2.5 text-sm text-slate-700"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="rounded-md bg-slate-900 px-5 py-2.5 text-sm text-white"
+                  >
+                    Start free
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="rounded-md border px-5 py-2.5 text-sm text-slate-700"
+                  >
+                    I already have an account
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </section>
