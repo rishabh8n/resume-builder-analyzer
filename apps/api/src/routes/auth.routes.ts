@@ -24,18 +24,19 @@ import {
   changePasswordSchema,
 } from '@/validators/auth.schemas'
 import { googleLoginSchema } from '@/validators/google.schemas'
+import { authLimiter, loginLimiter, forgotLimiter } from '@/middlewares/rateLimiters'
 
 const router = Router()
 
-router.post('/register', validate(registerSchema), register)
-router.post('/verify-email', validate(verifyEmailSchema), verifyEmail)
-router.post('/login', validate(loginSchema), login)
-router.post('/google', validate(googleLoginSchema), googleLogin)
-router.post('/refresh', validate(refreshSchema), refresh)
-router.post('/logout', validate(logoutSchema), logout)
-router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword)
-router.post('/reset-password', validate(resetPasswordSchema), resetPassword)
-router.post('/change-password', validate(changePasswordSchema), requireAuth, changePassword)
+router.post('/register', authLimiter, validate(registerSchema), register)
+router.post('/verify-email', authLimiter, validate(verifyEmailSchema), verifyEmail)
+router.post('/login', loginLimiter, validate(loginSchema), login)
+router.post('/google', authLimiter, validate(googleLoginSchema), googleLogin)
+router.post('/refresh', authLimiter, validate(refreshSchema), refresh)
+router.post('/logout', authLimiter, validate(logoutSchema), logout)
+router.post('/forgot-password', forgotLimiter, validate(forgotPasswordSchema), forgotPassword)
+router.post('/reset-password', authLimiter, validate(resetPasswordSchema), resetPassword)
+router.post('/change-password', authLimiter, validate(changePasswordSchema), requireAuth, changePassword)
 router.get('/me', requireAuth, me)
 
 export default router
