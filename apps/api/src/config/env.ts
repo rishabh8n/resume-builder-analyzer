@@ -14,4 +14,5 @@ export const env = {
   APP_URL: process.env.APP_URL ?? 'http://localhost:5173',
   CORS_ORIGIN: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? '',
+  RESEND_FROM: process.env.RESEND_FROM ?? '',
 }

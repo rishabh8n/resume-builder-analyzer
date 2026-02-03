@@ -7,6 +7,7 @@ import { hashPassword, comparePassword } from '@/utils/password'
 import { generateTokenString, hashToken } from '@/utils/crypto'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@/utils/tokens'
 import { env } from '@/config/env'
+import { sendPasswordResetEmail, sendVerificationEmail } from '@/utils/emails'
 
 function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
   const isProd = env.NODE_ENV === 'production'
@@ -44,8 +45,8 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     emailVerificationExpires: new Date(Date.now() + env.EMAIL_TOKEN_EXPIRES_MS),
   })
 
-  // TODO: send email using resend
   const verifyUrl = `${env.APP_URL}/verify-email?token=${emailToken}`
+  await sendVerificationEmail(user.email, verifyUrl)
 
   res.status(201).json(
     ApiResponse(
@@ -158,8 +159,8 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
   user.resetPasswordExpires = new Date(Date.now() + env.RESET_TOKEN_EXPIRES_MS)
   await user.save()
 
-  // TODO: send email using resend
   const resetUrl = `${env.APP_URL}/reset-password?token=${resetToken}`
+  await sendPasswordResetEmail(user.email, resetUrl)
 
   res.json(ApiResponse({ resetUrl }, 'Password reset link sent'))
 })
