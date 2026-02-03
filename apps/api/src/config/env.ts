@@ -15,4 +15,5 @@ export const env = {
   CORS_ORIGIN: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? '',
   RESEND_FROM: process.env.RESEND_FROM ?? '',
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? '',
 }

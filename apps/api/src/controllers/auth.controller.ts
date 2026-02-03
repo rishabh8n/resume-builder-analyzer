@@ -8,6 +8,7 @@ import { generateTokenString, hashToken } from '@/utils/crypto'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@/utils/tokens'
 import { env } from '@/config/env'
 import { sendPasswordResetEmail, sendVerificationEmail } from '@/utils/emails'
+import { verifyGoogleIdToken } from '@/utils/google'
 
 function setAuthCookies(res: Response, accessToken: string, refreshToken: string) {
   const isProd = env.NODE_ENV === 'production'
@@ -211,4 +212,36 @@ export const me = asyncHandler(async (req: Request, res: Response) => {
   if (!user) throw new ApiError(404, 'User not found')
 
   res.json(ApiResponse({ user }))
+})
+
+export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
+  const { idToken } = req.body
+  if (!idToken) throw new ApiError(400, 'idToken is required')
+
+  const { googleId, email, name } = await verifyGoogleIdToken(idToken)
+
+  let user = await User.findOne({ email })
+  if (!user) {
+    user = await User.create({
+      name,
+      email,
+      googleId,
+      isEmailVerified: true,
+    })
+  } else if (!user.googleId) {
+    user.googleId = googleId
+    user.isEmailVerified = true
+    await user.save()
+  }
+
+  const refreshTokenId = generateTokenString(16)
+  const refreshToken = signRefreshToken(user.id, refreshTokenId)
+  const refreshTokenHash = hashToken(refreshToken)
+  user.refreshTokens.push(refreshTokenHash)
+  await user.save()
+
+  const accessToken = signAccessToken(user.id)
+  setAuthCookies(res, accessToken, refreshToken)
+
+  res.json(ApiResponse({ user: { id: user.id, name: user.name, email: user.email } }))
 })
