@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
+
 import { verifyEmail } from '@/features/auth/api/authApi'
+import { toast } from '@/components/ui/use-toast'
+import { CenteredAuthLayout } from '@/components/layout/CenteredAuthLayout'
 
 export function VerifyEmailPage() {
   const [params] = useSearchParams()
@@ -10,22 +13,25 @@ export function VerifyEmailPage() {
   useEffect(() => {
     if (!token) return
     verifyEmail(token)
-      .then(() => setStatus('success'))
-      .catch(() => setStatus('error'))
+      .then(() => {
+        setStatus('success')
+        toast.success('Email verified')
+      })
+      .catch(() => {
+        setStatus('error')
+        toast.error('Verification failed')
+      })
   }, [token])
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-md px-6 py-16">
-        <h1 className="text-2xl font-semibold">Verify email</h1>
-        {status === 'success' && (
-          <p className="mt-4 text-slate-600">Email verified. <Link to="/login" className="underline">Login</Link></p>
-        )}
-        {status === 'error' && (
-          <p className="mt-4 text-slate-600">Verification failed. <Link to="/login" className="underline">Try again</Link></p>
-        )}
-        {status === 'idle' && <p className="mt-4 text-slate-600">Verifying...</p>}
-      </div>
-    </div>
+    <CenteredAuthLayout title="Verify email">
+      {status === 'success' && (
+        <p className="text-slate-600">Email verified. <Link to="/login" className="underline">Login</Link></p>
+      )}
+      {status === 'error' && (
+        <p className="text-slate-600">Verification failed. <Link to="/resend-verification" className="underline">Resend</Link></p>
+      )}
+      {status === 'idle' && <p className="text-slate-600">Verifying...</p>}
+    </CenteredAuthLayout>
   )
 }

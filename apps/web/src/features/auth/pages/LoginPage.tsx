@@ -1,54 +1,73 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { GoogleLoginButton } from '@/features/auth/components/GoogleLoginButton'
+import { loginSchema } from '@/features/auth/validators'
+import { toast } from '@/components/ui/use-toast'
+import { CenteredAuthLayout } from '@/components/layout/CenteredAuthLayout'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+
+type FormData = {
+  email: string
+  password: string
+}
 
 export function LoginPage() {
   const navigate = useNavigate()
   const login = useAuthStore((s) => s.login)
   const error = useAuthStore((s) => s.error)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    await login(email, password)
-    navigate('/')
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  })
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      await login(data.email, data.password)
+      toast.success('Welcome back')
+      navigate('/')
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Login failed')
+    }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="mx-auto max-w-md px-6 py-16">
-        <h1 className="text-2xl font-semibold">Login</h1>
-        <div className="mt-6">
-          <GoogleLoginButton />
-        </div>
-        <div className="my-4 text-center text-sm text-slate-500">or</div>
-        <form className="space-y-4" onSubmit={onSubmit}>
-          <input
-            className="w-full rounded-md border px-3 py-2"
-            placeholder="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            className="w-full rounded-md border px-3 py-2"
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button className="w-full rounded-md bg-slate-900 px-4 py-2 text-white">Login</button>
-        </form>
-        <div className="mt-4 text-sm text-slate-600">
-          <Link to="/forgot-password" className="underline">Forgot password?</Link>
-        </div>
-        <div className="mt-2 text-sm text-slate-600">
-          Don’t have an account? <Link to="/register" className="underline">Register</Link>
-        </div>
+    <CenteredAuthLayout title="Login" subtitle="Sign in to continue">
+      <div className="mb-6">
+        <GoogleLoginButton />
       </div>
-    </div>
+      <div className="mb-6 text-center text-sm text-slate-500">or</div>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <div>
+          <Label>Email</Label>
+          <Input type="email" placeholder="you@email.com" {...register('email')} />
+          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+        </div>
+        <div>
+          <Label>Password</Label>
+          <Input type="password" placeholder="********" {...register('password')} />
+          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+        </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <Button className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Signing in...' : 'Login'}
+        </Button>
+      </form>
+      <div className="mt-4 text-sm text-slate-600">
+        <Link to="/forgot-password" className="underline">Forgot password?</Link>
+      </div>
+      <div className="mt-2 text-sm text-slate-600">
+        Don’t have an account? <Link to="/register" className="underline">Register</Link>
+      </div>
+    </CenteredAuthLayout>
   )
 }

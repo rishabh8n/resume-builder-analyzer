@@ -11,6 +11,7 @@ import { ProfilePage } from '@/features/auth/pages/ProfilePage'
 import { ResendVerificationPage } from '@/features/auth/pages/ResendVerificationPage'
 import { ChangePasswordPage } from '@/features/auth/pages/ChangePasswordPage'
 import { AuthGuard } from '@/components/layout/AuthGuard'
+import { RedirectIfAuth } from '@/components/layout/RedirectIfAuth'
 
 export const router = createBrowserRouter([
   {
@@ -18,12 +19,17 @@ export const router = createBrowserRouter([
     element: <HomeRoute />,
     errorElement: <ErrorRoute />,
   },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/forgot-password', element: <ForgotPasswordPage /> },
-  { path: '/reset-password', element: <ResetPasswordPage /> },
-  { path: '/verify-email', element: <VerifyEmailPage /> },
-  { path: '/resend-verification', element: <ResendVerificationPage /> },
+  {
+    element: <RedirectIfAuth />,
+    children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
+      { path: '/verify-email', element: <VerifyEmailPage /> },
+      { path: '/resend-verification', element: <ResendVerificationPage /> },
+    ],
+  },
   {
     element: <AuthGuard />,
     children: [
