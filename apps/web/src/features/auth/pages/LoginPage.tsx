@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
+import { GoogleLoginButton } from '@/features/auth/components/GoogleLoginButton'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -19,7 +20,11 @@ export function LoginPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-md px-6 py-16">
         <h1 className="text-2xl font-semibold">Login</h1>
-        <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+        <div className="mt-6">
+          <GoogleLoginButton />
+        </div>
+        <div className="my-4 text-center text-sm text-slate-500">or</div>
+        <form className="space-y-4" onSubmit={onSubmit}>
           <input
             className="w-full rounded-md border px-3 py-2"
             placeholder="Email"

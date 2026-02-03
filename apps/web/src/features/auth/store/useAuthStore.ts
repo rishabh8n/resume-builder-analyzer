@@ -10,6 +10,8 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  setAuthenticated: (user: authApi.AuthUser) => void
+  setError: (message: string) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -17,6 +19,20 @@ export const useAuthStore = create<AuthState>()(
     user: null,
     status: 'idle',
     error: undefined,
+
+    setAuthenticated: (user) => {
+      set((s) => {
+        s.user = user
+        s.status = 'authenticated'
+        s.error = undefined
+      })
+    },
+    setError: (message) => {
+      set((s) => {
+        s.error = message
+        s.status = 'unauthenticated'
+      })
+    },
 
     init: async () => {
       try {
@@ -30,10 +46,19 @@ export const useAuthStore = create<AuthState>()(
           s.status = 'authenticated'
         })
       } catch {
-        set((s) => {
-          s.user = null
-          s.status = 'unauthenticated'
-        })
+        try {
+          await authApi.refresh()
+          const res = await authApi.me()
+          set((s) => {
+            s.user = res.data.user
+            s.status = 'authenticated'
+          })
+        } catch {
+          set((s) => {
+            s.user = null
+            s.status = 'unauthenticated'
+          })
+        }
       }
     },
 
