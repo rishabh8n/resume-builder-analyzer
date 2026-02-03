@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 import { useAuthInit } from '@/features/auth/hooks/useAuthInit'
