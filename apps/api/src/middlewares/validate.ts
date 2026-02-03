@@ -1,4 +1,4 @@
-import { ZodSchema } from 'zod'
+import type { ZodSchema } from 'zod'
 import type { Request, Response, NextFunction } from 'express'
 import { ApiError } from '@/utils/ApiError'
 
