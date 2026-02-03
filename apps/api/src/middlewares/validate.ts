@@ -16,8 +16,8 @@ export const validate = (schema: ZodSchema) =>
     }
 
     req.body = result.data.body
-    req.params = result.data.params
-    req.query = result.data.query
+    if (result.data.params) Object.assign(req.params, result.data.params)
+    if (result.data.query) Object.assign(req.query, result.data.query)
 
     return next()
   }
