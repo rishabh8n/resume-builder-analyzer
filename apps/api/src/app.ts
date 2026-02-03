@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import { env } from '@/config/env'
 import { errorHandler } from '@/middlewares/errorHandler'
+import authRoutes from '@/routes/auth.routes'
 
 const app = express()
 
@@ -30,6 +31,8 @@ app.use(limiter)
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/api/auth', authRoutes)
 
 app.use(errorHandler)
 
