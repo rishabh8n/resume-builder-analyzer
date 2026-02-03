@@ -60,6 +60,26 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   )
 })
 
+export const resendVerification = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body
+  if (!email) throw new ApiError(400, 'Email required')
+
+  const user = await User.findOne({ email })
+  if (!user) throw new ApiError(200, 'If the account exists, a verification email was sent')
+  if (user.isEmailVerified) throw new ApiError(400, 'Email already verified')
+
+  const emailToken = generateTokenString(24)
+  const emailTokenHash = hashToken(emailToken)
+  user.emailVerificationToken = emailTokenHash
+  user.emailVerificationExpires = new Date(Date.now() + env.EMAIL_TOKEN_EXPIRES_MS)
+  await user.save()
+
+  const verifyUrl = `${env.APP_URL}/verify-email?token=${emailToken}`
+  await sendVerificationEmail(user.email, verifyUrl)
+
+  res.json(ApiResponse(null, 'Verification email resent'))
+})
+
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.body
   if (!token) throw new ApiError(400, 'Token is required')

@@ -21,6 +21,14 @@ export const verifyEmailSchema = z.object({
   query: z.object({}).optional(),
 })
 
+export const resendVerificationSchema = z.object({
+  body: z.object({
+    email,
+  }),
+  params: z.object({}).optional(),
+  query: z.object({}).optional(),
+})
+
 export const loginSchema = z.object({
   body: z.object({
     email,
